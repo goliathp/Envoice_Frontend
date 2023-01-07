@@ -1,7 +1,7 @@
 import axios from 'axios';
 import setAuthToken from '../../utils/setAuthToken';
 
-const API_URL = '/api/';
+const API_URL = process.env.REACT_APP_API_URL + '/api/';
 
 const register = async (userData) => {
   const response = await axios.post(API_URL + 'register_user', userData);
