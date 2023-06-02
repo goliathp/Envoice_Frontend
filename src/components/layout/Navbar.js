@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout, reset } from '../../features/auth/authSlice';
+import { clearInvoice } from '../../features/invoice/invSlice';
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
@@ -12,6 +13,7 @@ const Navbar = () => {
   const onLogout = () => {
     dispatch(logout());
     dispatch(reset());
+    dispatch(clearInvoice());
     navigate('/');
   };
 
@@ -43,6 +45,16 @@ const Navbar = () => {
               <li class='nav-item'>
                 <Link to='/create_csv' class='nav-link'>
                   Create CSV
+                </Link>
+              </li>
+              <li class='nav-item'>
+                <Link to='/create_invoice' class='nav-link'>
+                  Create Invoice
+                </Link>
+              </li>
+              <li class='nav-item'>
+                <Link to='/register_company' class='nav-link'>
+                  Register/Update Company
                 </Link>
               </li>
               <button class='btn btn-danger' onClick={onLogout}>

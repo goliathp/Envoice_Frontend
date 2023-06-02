@@ -42,7 +42,7 @@ const Register = () => {
   };
 
   return (
-    <>
+    <div className='container col-sm-4'>
       <form onSubmit={(e) => onSubmit(e)}>
         <div class='form-group'>
           <label for='exampleInputEmail1'>Email address</label>
@@ -93,7 +93,7 @@ const Register = () => {
           Submit
         </button>
       </form>
-    </>
+    </div>
   );
 };
 

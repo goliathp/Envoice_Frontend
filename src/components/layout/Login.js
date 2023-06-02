@@ -35,7 +35,7 @@ const Login = () => {
     dispatch(login(userData));
   };
   return (
-    <>
+    <div className='container col-sm-4'>
       <form onSubmit={(e) => onSubmit(e)}>
         <div class='form-group'>
           <label for='exampleInputEmail1'>Email address</label>
@@ -69,7 +69,8 @@ const Login = () => {
           Submit
         </button>
       </form>
-    </>
+      <div />
+    </div>
   );
 };
 

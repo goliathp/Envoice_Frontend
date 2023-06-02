@@ -1,17 +1,16 @@
 import axios from 'axios';
 
-const API_URL = '/api/';
+const API_URL = process.env.REACT_APP_API_URL + '/api/';
+//Fetching Company details for Invoice creation
 
-//Creating CSV for Invoices
-const create_csv = async (csvData) => {
-  const response = await axios.post(API_URL + 'create_csv', csvData);
-  if (response) {
-    // localStorage.setItem('csv_data', JSON.stringify(response.data));
-    console.log('Went Through IF');
-  }
-  return response;
+const create_invoice = async () => {
+  const response = await axios.get(API_URL + 'register_company');
+  // if (response.data) {
+  //   localStorage.setItem('invData', JSON.stringify(response.data));
+  // }
+  return response.data;
 };
 
-const invService = { create_csv };
+const invService = { create_invoice };
 
 export default invService;

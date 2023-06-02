@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 const Landing = () => {
-  return <div>This is Landing Page</div>;
+  return <div>Landing Page</div>;
 };
-
 export default Landing;

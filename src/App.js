@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import CreateInvoice from './components/layout/CreateInvoice';
+import CreateInvoice from './components/layout/CreateInvoice';
 import CreateCSV from './components/layout/CreateCSV';
 import Landing from './components/layout/Landing';
 import Navbar from './components/layout/Navbar';
@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { loadUser } from './features/auth/authSlice';
 import PrivateRoute from './components/routes/PrivateRoute';
+import UpdateCompany from './components/layout/UpdateCompany';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -31,12 +32,13 @@ function App() {
         {/* Protected and Private Routes */}
         <Route element={<PrivateRoute />}>
           <Route path='/create_csv' element={<CreateCSV />} />
+          <Route path='/create_invoice' element={<CreateInvoice />} />
+          <Route path='/register_company' element={<UpdateCompany />} />
         </Route>
 
         <Route exact path='/' element={<Landing />} />
         <Route path='/register_user' element={<Register />} />
         <Route path='/login' element={<Login />} />
-        {/* <Route path='/create_invoice' element={<CreateInvoice />} /> */}
       </Routes>
     </Router>
   );
