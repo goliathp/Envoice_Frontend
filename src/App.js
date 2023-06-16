@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { loadUser } from './features/auth/authSlice';
 import PrivateRoute from './components/routes/PrivateRoute';
 import UpdateCompany from './components/layout/UpdateCompany';
+import InvoiceList from './components/layout/InvoiceList';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -34,6 +35,7 @@ function App() {
           <Route path='/create_csv' element={<CreateCSV />} />
           <Route path='/create_invoice' element={<CreateInvoice />} />
           <Route path='/register_company' element={<UpdateCompany />} />
+          <Route path='/invoices' element={<InvoiceList />} />
         </Route>
 
         <Route exact path='/' element={<Landing />} />

@@ -2,9 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const CreateInvoice = () => {
-  const API_URL = 'http://localhost:2000/api/register_company';
-  const API_URL_PDF = 'http://localhost:2000/api/pdf_generator';
+  const API_URL = process.env.REACT_APP_API_URL + '/api/register_company';
+  const API_URL_PDF = process.env.REACT_APP_API_URL + '/api/pdf_generator';
+  const API_URL_CLIENTS = process.env.REACT_APP_API_URL + '/api/list_clients';
 
+  const [getClient, setClients] = useState({ clients: [] });
+  const [showClient, setShowClient] = useState();
+  const [showClientDetails, setClientDetails] = useState({
+    client_search_company: [],
+  });
   const [compDetails, setCompDetails] = useState({ companies: [] });
   const GST = 10;
   const [showAddRow, setShowAddRow] = useState(true);
@@ -63,12 +69,12 @@ const CreateInvoice = () => {
   const handleEdit = () => {
     setShowAddRow(true);
   };
+
   const handleDownload = async () => {
     await setShowAddRow(false);
     await setShowDownload(false);
     try {
       const reactCode = document.documentElement.outerHTML;
-      console.log(reactCode);
       const response = await axios.post(
         API_URL_PDF,
         { reactCode },
@@ -95,9 +101,29 @@ const CreateInvoice = () => {
       console.log(error);
     }
   };
+
+  const getClients = async () => {
+    try {
+      const clients = await axios.get(API_URL_CLIENTS);
+      setClients(clients.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     getCompany();
+    getClients();
   }, []);
+
+  const searchClient = async (val) => {
+    try {
+      const clients = await axios.get(API_URL_CLIENTS + `/${val}`);
+      setClientDetails(clients.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const calcSubtotal = () => {
     return rows.reduce(
@@ -154,7 +180,6 @@ const CreateInvoice = () => {
           </div>
         </div>
         {compDetails &&
-          compDetails.companies &&
           compDetails.companies.map((company) => (
             <div class='row'>
               <div class='col-7' key={company._id}>
@@ -165,12 +190,37 @@ const CreateInvoice = () => {
                 <p className='mb-1'>{company.company_email}</p>
               </div>
 
-              <div class='col' key={company._id}>
+              <div>
                 <h5>Bill To:</h5>
-                <p className='mb-1'>{company.client_name}Client Name</p>
-                <p className='mb-1'>{company.company_address}</p>
-                <p className='mb-1'>+61-{company.company_phone}</p>
-                <p className='mb-1'>{company.company_email}</p>
+
+                {showAddRow && (
+                  <select
+                    onChange={async (e) => {
+                      setShowClient(e.target.value);
+                      searchClient(e.target.value);
+                    }}
+                  >
+                    {showClient && <option>{showClient}</option>}
+                    {!showClient && <option>Select your client</option>}
+                    {getClient &&
+                      getClient.clients.map((client) => (
+                        <option className='mb-1' value={client.client_company}>
+                          {client.client_company}
+                        </option>
+                      ))}
+                  </select>
+                )}
+                {!showAddRow && showClient}
+                {showClientDetails &&
+                  showClientDetails.client_search_company &&
+                  showClientDetails.client_search_company.map((client) => (
+                    <div key={client._id}>
+                      <p className='mb-1'>{client.client_address}</p>
+                      <p className='mb-1'>ABN: {client.client_abn}</p>
+                      <p className='mb-1'>+61-{client.client_phone}</p>
+                      <p className='mb-1'>{client.client_email}</p>
+                    </div>
+                  ))}
               </div>
             </div>
           ))}
