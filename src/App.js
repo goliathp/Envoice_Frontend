@@ -14,6 +14,10 @@ import { loadUser } from './features/auth/authSlice';
 import PrivateRoute from './components/routes/PrivateRoute';
 import UpdateCompany from './components/layout/UpdateCompany';
 import InvoiceList from './components/layout/InvoiceList';
+import AddClients from './components/layout/AddClients';
+import UpdateClient from './components/layout/UpdateClient';
+import UpdateInvoice from './components/layout/UpdateInvoice';
+import Quote from './components/layout/Quote';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -34,8 +38,18 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path='/create_csv' element={<CreateCSV />} />
           <Route path='/create_invoice' element={<CreateInvoice />} />
+          <Route path='/create_quote' element={<Quote />} />
+          <Route
+            path='/update_invoice/:invoice_no'
+            element={<UpdateInvoice />}
+          />
           <Route path='/register_company' element={<UpdateCompany />} />
-          <Route path='/invoices' element={<InvoiceList />} />
+          <Route path='/list_invoices' element={<InvoiceList />} />
+          <Route path='/add_clients' element={<AddClients />} />
+          <Route
+            path='/update_client/:client_comp'
+            element={<UpdateClient />}
+          />
         </Route>
 
         <Route exact path='/' element={<Landing />} />

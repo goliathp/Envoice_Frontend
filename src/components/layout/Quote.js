@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getCompany, getClients } from '../apiCalls/UserAPI';
-import { listInvoice, saveInvoice } from '../apiCalls/InvoiceAPI';
+import { listInvoice } from '../apiCalls/InvoiceAPI';
 
-const CreateInvoice = () => {
+const Quote = () => {
   const API_URL_PDF = process.env.REACT_APP_API_URL + '/api/pdf_generator';
   const API_URL_CLIENTS = process.env.REACT_APP_API_URL + '/api/list_clients';
 
@@ -101,10 +101,6 @@ const CreateInvoice = () => {
     setShowDownload(true);
   };
 
-  const handleSave = () => {
-    saveInvoice(combinedDetails);
-  };
-
   // const getClients = async () => {
   //   try {
   //     const clients = await axios.get(API_URL_CLIENTS);
@@ -126,9 +122,7 @@ const CreateInvoice = () => {
         setClients(client);
         //getting invoice length
         const invList = await listInvoice();
-        const invLength = invList.inv.length;
-        setInvoiceNo(invList.inv[invLength - 1].invoice_no + 1);
-        // console.log(invList.inv[invoice_no - 2].invoice_no + 1);
+        setInvoiceNo(invList.inv.length + 1);
       } catch (error) {
         console.log(error);
       }
@@ -177,6 +171,7 @@ const CreateInvoice = () => {
     sales_tax: salesTax,
     total_amount: total,
   };
+  console.log(combinedDetails);
   return (
     // <></>
 
@@ -185,7 +180,7 @@ const CreateInvoice = () => {
         <div className='row'>
           <div className='col'>
             <center>
-              <h1 className='mb-4'>Tax Invoice</h1>
+              <h1 className='mb-4'>Quote</h1>
             </center>
           </div>
         </div>
@@ -204,26 +199,22 @@ const CreateInvoice = () => {
             ))}
 
           <div class='col'>
-            <h4>Invoice Info:</h4>
             <p className='mb-1'>
-              Invoice Number:{' '}
-              {showAddRow && (
-                <input
-                  value={invoice_no}
-                  onChange={handleInvoiceNoChange}
-                ></input>
-              )}
-              {!showAddRow && invoice_no}
+              Quote Number:{' '}
+              <input
+                value={invoice_no}
+                onChange={handleInvoiceNoChange}
+              ></input>
             </p>
             <p className='mb-1'>Date: {dateHelper(currentDate)}</p>
-            <p className='mb-1'>Due Date: {dateHelper(dueDate)}</p>
+            {/* <p className='mb-1'>Due Date: {dateHelper(dueDate)}</p> */}
           </div>
         </div>
         {compDetails &&
           compDetails.companies.map((company) => (
             <div class='row'>
               <div class='col-7' key={company._id}>
-                <h5>Bill From:</h5>
+                <h5>Quote From:</h5>
                 <p className='mb-1'>{company.company_address}</p>
                 <p className='mb-1'>ABN: {company.company_abn}</p>
                 <p className='mb-1'>+61-{company.company_phone}</p>
@@ -231,7 +222,7 @@ const CreateInvoice = () => {
               </div>
 
               <div>
-                <h5>Bill To:</h5>
+                <h5>Quote To:</h5>
 
                 {showAddRow && (
                   <select
@@ -372,30 +363,16 @@ const CreateInvoice = () => {
 
         <div class='container text-left'>
           <div class='row'>
-            {compDetails &&
-              compDetails.companies &&
-              compDetails.companies.map((company) => (
-                <div class='col-9' key={company._id}>
-                  <h4>Payment Details:</h4>
-                  <p>{company.company_name}</p>
-                  <p>BSB: {company.company_bsb}</p>
-                  <p>Account No.: {company.company_accNo}</p>
-                </div>
-              ))}
-
             <div class='col'>
               <p>Subtotal: ${calcSubtotal()}</p>
               <p>
                 GST%:
-                {showAddRow && (
-                  <input
-                    type='text'
-                    name='GST'
-                    value={GST}
-                    onChange={handleChange}
-                  />
-                )}
-                {!showAddRow && GST}
+                <input
+                  type='text'
+                  name='GST'
+                  value={GST}
+                  onChange={handleChange}
+                />
               </p>
               <p>Sales Tax: ${salesTax}</p>
               <p>Total: ${total}</p>
@@ -409,10 +386,9 @@ const CreateInvoice = () => {
         )}
         {showDownload && <button onClick={handleDownload}>Download</button>}
         {showDownload && <button>Send Mail</button>}
-        {showDownload && <button onClick={handleSave}>Save To Database</button>}
       </form>
     </div>
   );
 };
 
-export default CreateInvoice;
+export default Quote;

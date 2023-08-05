@@ -1,30 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { getCompany, getClients } from '../apiCalls/UserAPI';
-import { listInvoice, saveInvoice } from '../apiCalls/InvoiceAPI';
+import { useParams } from 'react-router-dom';
+import { saveInvoice } from '../apiCalls/InvoiceAPI';
 
-const CreateInvoice = () => {
+const UpdateInvoice = () => {
+  const API_URL = process.env.REACT_APP_API_URL + '/api/register_company';
   const API_URL_PDF = process.env.REACT_APP_API_URL + '/api/pdf_generator';
   const API_URL_CLIENTS = process.env.REACT_APP_API_URL + '/api/list_clients';
 
+  const { invoice_no } = useParams();
+  const API_URL_INVOICE = process.env.REACT_APP_API_URL + '/api/list_invoice';
+
+  const [getInvData, setInvData] = useState({ inv: [] });
   const [getClient, setClients] = useState({ clients: [] });
   const [showClient, setShowClient] = useState();
   const [showClientDetails, setClientDetails] = useState({
     client_search_company: [],
   });
+  const [clientName, setClientName] = useState();
   const [compDetails, setCompDetails] = useState({ companies: [] });
-  const [GST, setGST] = useState(10);
+  const GST = 10;
   const [showAddRow, setShowAddRow] = useState(true);
   const [showDownload, setShowDownload] = useState(true);
-  const [rows, setRows] = useState([
-    {
-      description: '',
-      quantity: 0,
-      price: 0,
-      amount: 0,
-    },
-  ]);
-  const [invoice_no, setInvoiceNo] = useState();
+
+  const [rows, setRows] = useState([]);
+
+  const getInvoice = async () => {
+    try {
+      const invoice = await axios.get(API_URL_INVOICE + `/${invoice_no}`);
+      setInvData(invoice.data);
+      const { job_items, ...invoiceData } = invoice.data.inv[0];
+      setRows(job_items);
+      setClientName(invoiceData.clients);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleInputChange = (event, rowIndex) => {
     const updatedRow = {
@@ -39,15 +50,7 @@ const CreateInvoice = () => {
     ];
     setRows(updatedRows);
   };
-  // console.log(...rows);
-
-  const handleChange = (event) => {
-    setGST(event.target.value);
-  };
-
-  const handleInvoiceNoChange = (e) => {
-    setInvoiceNo(e.target.value);
-  };
+  //   console.log(...rows);
 
   const handleAddRow = () => {
     setRows([
@@ -101,59 +104,61 @@ const CreateInvoice = () => {
     setShowDownload(true);
   };
 
-  const handleSave = () => {
-    saveInvoice(combinedDetails);
+  const getCompany = async () => {
+    try {
+      // const timestamp = new Date().getTime();
+      const fetchData = await axios.get(API_URL);
+      setCompDetails(fetchData.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  // const getClients = async () => {
-  //   try {
-  //     const clients = await axios.get(API_URL_CLIENTS);
-  //     setClients(clients.data);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  useEffect(() => {
-    //Fetching data from UserAPI.js
-    const fetchData = async () => {
-      try {
-        //getting company details
-        const company = await getCompany();
-        setCompDetails(company);
-        //getting and listing client details
-        const client = await getClients();
-        setClients(client);
-        //getting invoice length
-        const invList = await listInvoice();
-        const invLength = invList.inv.length;
-        setInvoiceNo(invList.inv[invLength - 1].invoice_no + 1);
-        // console.log(invList.inv[invoice_no - 2].invoice_no + 1);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, []);
-
+  const getClients = async () => {
+    try {
+      const clients = await axios.get(API_URL_CLIENTS);
+      setClients(clients.data);
+      // console.log(clients.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const searchClient = async (val) => {
     try {
-      const clients = await axios.get(API_URL_CLIENTS + `/${val}`);
-      setClientDetails(clients.data);
+      if (val) {
+        const clients = await axios.get(API_URL_CLIENTS + `/${val}`);
+        setClientDetails(clients.data);
+      } else {
+        return;
+      }
+      // console.log(clients.data);
     } catch (error) {
       console.error(error);
     }
   };
 
+  const handleSave = () => {
+    saveInvoice(combinedDetails);
+  };
+
+  useEffect(() => {
+    getCompany();
+    getClients();
+    getInvoice();
+    setShowClient(clientName);
+    searchClient(clientName);
+  }, [clientName]);
+
   const calcSubtotal = () => {
     return rows.reduce(
-      (account, current) => account + parseFloat(current.amount || 0),
+      (accumulator, currentValue) =>
+        accumulator + parseFloat(currentValue.amount || 0),
       0
     );
   };
   const subtotal = calcSubtotal();
-  const salesTax = (subtotal * (GST / 100)).toFixed(2);
-  const total = (subtotal + subtotal * (GST / 100)).toFixed(2);
+  const salesTax = (subtotal * (10 / 100)).toFixed(2);
+  const total = (subtotal + subtotal * (10 / 100)).toFixed(2);
 
   const dateHelper = (date) => {
     const day = date.getDate();
@@ -177,6 +182,7 @@ const CreateInvoice = () => {
     sales_tax: salesTax,
     total_amount: total,
   };
+
   return (
     // <></>
 
@@ -205,16 +211,7 @@ const CreateInvoice = () => {
 
           <div class='col'>
             <h4>Invoice Info:</h4>
-            <p className='mb-1'>
-              Invoice Number:{' '}
-              {showAddRow && (
-                <input
-                  value={invoice_no}
-                  onChange={handleInvoiceNoChange}
-                ></input>
-              )}
-              {!showAddRow && invoice_no}
-            </p>
+            <p className='mb-1'>Invoice Number: {invoice_no}</p>
             <p className='mb-1'>Date: {dateHelper(currentDate)}</p>
             <p className='mb-1'>Due Date: {dateHelper(dueDate)}</p>
           </div>
@@ -235,16 +232,17 @@ const CreateInvoice = () => {
 
                 {showAddRow && (
                   <select
+                    value={showClient}
                     onChange={async (e) => {
                       setShowClient(e.target.value);
                       searchClient(e.target.value);
                     }}
                   >
-                    {showClient && <option>{showClient}</option>}
                     {!showClient && <option>Select your client</option>}
+                    {/* {showClient && <option>{showClient}</option>} */}
                     {getClient &&
                       getClient.clients.map((client) => (
-                        <option className='mb-1' value={client.client_company}>
+                        <option className='mb-1'>
                           {client.client_company}
                         </option>
                       ))}
@@ -385,18 +383,7 @@ const CreateInvoice = () => {
 
             <div class='col'>
               <p>Subtotal: ${calcSubtotal()}</p>
-              <p>
-                GST%:
-                {showAddRow && (
-                  <input
-                    type='text'
-                    name='GST'
-                    value={GST}
-                    onChange={handleChange}
-                  />
-                )}
-                {!showAddRow && GST}
-              </p>
+              <p>GST: {GST}%</p>
               <p>Sales Tax: ${salesTax}</p>
               <p>Total: ${total}</p>
             </div>
@@ -415,4 +402,4 @@ const CreateInvoice = () => {
   );
 };
 
-export default CreateInvoice;
+export default UpdateInvoice;

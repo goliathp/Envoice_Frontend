@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout, reset } from '../../features/auth/authSlice';
 import { clearInvoice } from '../../features/invoice/invSlice';
@@ -53,8 +53,23 @@ const Navbar = () => {
                 </Link>
               </li>
               <li class='nav-item'>
+                <Link to='/list_invoices' class='nav-link'>
+                  List Invoices
+                </Link>
+              </li>
+              <li class='nav-item'>
+                <Link to='/create_quote' class='nav-link'>
+                  Create Quote
+                </Link>
+              </li>
+              <li class='nav-item'>
                 <Link to='/register_company' class='nav-link'>
                   Register/Update Company
+                </Link>
+              </li>
+              <li class='nav-item'>
+                <Link to='/add_clients' class='nav-link'>
+                  Add Clients
                 </Link>
               </li>
               <button class='btn btn-danger' onClick={onLogout}>

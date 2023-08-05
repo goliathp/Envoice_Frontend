@@ -46,6 +46,7 @@ const UpdateCompany = () => {
 
   const onChange = (e, index) => {
     const updatedCompanies = [...formData.companies];
+    // console.log(updatedCompanies);
     updatedCompanies[index] = {
       ...updatedCompanies[index],
       [e.target.name]: e.target.value,
